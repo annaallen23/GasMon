@@ -48,10 +48,12 @@ public class Event {
         this.timestamp = timestamp;
     }
 
-    @Override
     public String toString() {
         return MoreObjects.toStringHelper(this.getClass())
                 .add("locationId", locationId)
+                .add("eventId", eventId)
+                .add("value", value)
+                .add("Timestamp", timestamp)
                 .toString();
 
     }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.softwire.training.gasmon.aws.AwsClientFactory;
 import org.softwire.training.gasmon.config.Config;
+import org.softwire.training.gasmon.model.Event;
 import org.softwire.training.gasmon.model.Location;
 import org.softwire.training.gasmon.receiver.QueueSubscription;
 import org.softwire.training.gasmon.receiver.Receiver;
@@ -50,9 +51,20 @@ public class Main {
         try (QueueSubscription queueSubscription = new QueueSubscription(sqs, sns, config.receiver.snsTopicArn)) {
             Receiver receiver = new Receiver(sqs, queueSubscription.getQueueUrl());
 
-            // ...
+        // when event id equals location id return event else ignore...
             // Your code here!
             // ...
+        while (true){
+            List <Event> events = receiver.getEvents();
+            for (Event event :events) {
+                if (locationService.isValidLocation(event.getLocationId())) {
+                    LOG.info("{}", event);
+                } else {
+                    LOG.info("skipped event with invalid location ID {}", event.getLocationId());
+                }
+            }
+        }
+
         }
     }
 }
