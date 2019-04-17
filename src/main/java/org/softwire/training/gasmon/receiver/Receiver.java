@@ -6,6 +6,7 @@ import com.amazonaws.services.sqs.model.DeleteMessageBatchResult;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.google.common.collect.Streams;
+import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +20,7 @@ public class Receiver {
 
     private final AmazonSQS sqs;
     private final String queueUrl;
+    //private final Gson gson;
 
     public Receiver(AmazonSQS sqs, String queueUrl) {
         this.sqs = sqs;
@@ -32,6 +34,8 @@ public class Receiver {
         deleteMessagesFromQueue(messages);
         return messages;
     }
+    //get events method
+
 
     private void deleteMessagesFromQueue(List<Message> messages) {
         if (messages.size() > 0) {
@@ -46,4 +50,5 @@ public class Receiver {
             LOG.debug("Deleted {} of {} messages", messages.size() - result.getFailed().size(), messages.size());
         }
     }
+    //method to build custom Gson
 }
