@@ -59,12 +59,13 @@ public class Main {
             // Your code here!
             // ...
             double timeLastAverageStamped = System.currentTimeMillis();
-            while (true) {
+            long timeProgrammeStarted = System.currentTimeMillis();
+            while (System.currentTimeMillis()< timeProgrammeStarted + 1800000) {
                 List<Event> events = receiver.getEvents();
                 for (Event event : events) {
                     if (locationService.isValidLocation(event.getLocationId())) {
                         if (!eventService.hasPreviouslyBeenSeen(event)) {
-                            eventService.getTime(event);
+                            eventService.addEvent(event);
                             LOG.info("{}", event);
                             if (System.currentTimeMillis() - timeLastAverageStamped > 60000) {
                                 LOG.info("the average value between {} & {} was {}", System.currentTimeMillis() - 360000, System.currentTimeMillis() - 300000, eventService.averageValueTime());
@@ -77,8 +78,10 @@ public class Main {
                         }
                     }
                 }
+            }
 
-
+            for (Location location : locations) {
+                LOG.info("the average for location {} is {}", location, eventService.averageValueAtLocation(location.getId()));
             }
         }
     }

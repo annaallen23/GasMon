@@ -25,17 +25,11 @@ public class EventService {
         return false;
     }
 
-    public List<Event> timedEvents = new ArrayList<>();
-
-    public void getTime(Event event) {
-        timedEvents.add(event);
-    }
-
     public double averageValueTime() {
         double sumOfValues = 0;
         int noOfEvents = 0;
         long currentTime = System.currentTimeMillis();
-        for (Event timedEvent : timedEvents) {
+        for (Event timedEvent : validEvents) {
             if ((currentTime-timedEvent.getTimestamp()) >= 300000 && (currentTime-timedEvent.getTimestamp()) < 360000){
                 sumOfValues += timedEvent.getValue();
                 noOfEvents++;
@@ -43,6 +37,19 @@ public class EventService {
         }
         return sumOfValues/noOfEvents;
     }
+
+    public double averageValueAtLocation(String locationId) {
+        double sumOfValues = 0;
+        int noOfEvents = 0;
+        for (Event timedEvent : validEvents) {
+            if (locationId.equals(timedEvent.getLocationId())){
+                sumOfValues += timedEvent.getValue();
+                noOfEvents++;
+            }
+        }
+        return sumOfValues/noOfEvents;
+    }
+
 }
 
 

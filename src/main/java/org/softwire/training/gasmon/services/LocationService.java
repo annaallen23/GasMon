@@ -1,10 +1,12 @@
 package org.softwire.training.gasmon.services;
 
 import com.google.gson.Gson;
+import org.softwire.training.gasmon.model.Event;
 import org.softwire.training.gasmon.model.Location;
 import org.softwire.training.gasmon.repository.S3Repository;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -41,5 +43,6 @@ public class LocationService {
         }
         return false;
     }
+
 }
 
