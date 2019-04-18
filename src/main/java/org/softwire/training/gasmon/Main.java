@@ -44,9 +44,9 @@ public class Main {
 
         S3Repository repository = new S3Repository(s3, config.locations.s3Bucket);
         LocationService locationService = new LocationService(repository, config.locations.s3Key);
-        List <Location> locations = locationService.getValidLocations();
+        List<Location> locations = locationService.getValidLocations();
 
-        for(Location location : locations) {
+        for (Location location : locations) {
             LOG.info("{}", location);
         }
 
@@ -55,26 +55,33 @@ public class Main {
         try (QueueSubscription queueSubscription = new QueueSubscription(sqs, sns, config.receiver.snsTopicArn)) {
             Receiver receiver = new Receiver(sqs, queueSubscription.getQueueUrl());
 
-        // when event id equals location id return event else ignore...
+            // when event id equals location id return event else ignore...
             // Your code here!
             // ...
-        while (true){
-            List <Event> events = receiver.getEvents();
-            for (Event event :events) {
-                if (locationService.isValidLocation(event.getLocationId())) {
-                    if (!eventService.hasPreviouslyBeenSeen(event)) {
-                        eventService.addEvent(event);
-                        LOG.info("{}", event);
-                    } else{
-                        LOG.info("event already been seen {}", event.getEventId());
+            double timeLastAverageStamped = System.currentTimeMillis();
+            while (true) {
+                List<Event> events = receiver.getEvents();
+                for (Event event : events) {
+                    if (locationService.isValidLocation(event.getLocationId())) {
+                        if (!eventService.hasPreviouslyBeenSeen(event)) {
+                            eventService.getTime(event);
+                            LOG.info("{}", event);
+                            if (System.currentTimeMillis() - timeLastAverageStamped > 60000) {
+                                LOG.info("the average value between {} & {} was {}", System.currentTimeMillis() - 360000, System.currentTimeMillis() - 300000, eventService.averageValueTime());
+                                timeLastAverageStamped = System.currentTimeMillis();
+                            } else {
+                                LOG.info("event already been seen {}", event.getEventId());
+                            }
+                        } else {
+                            LOG.info("skipped event with invalid location ID {}", event.getLocationId());
+                        }
                     }
-                } else {
-                   LOG.info("skipped event with invalid location ID {}", event.getLocationId());
                 }
+
+
             }
-        }
-
-
         }
     }
 }
+
+
