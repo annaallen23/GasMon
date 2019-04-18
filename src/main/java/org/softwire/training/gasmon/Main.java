@@ -12,7 +12,9 @@ import org.softwire.training.gasmon.model.Location;
 import org.softwire.training.gasmon.receiver.QueueSubscription;
 import org.softwire.training.gasmon.receiver.Receiver;
 import org.softwire.training.gasmon.repository.S3Repository;
+import org.softwire.training.gasmon.services.EventService;
 import org.softwire.training.gasmon.services.LocationService;
+import sun.plugin2.message.Message;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,6 +50,8 @@ public class Main {
             LOG.info("{}", location);
         }
 
+        EventService eventService = new EventService();
+
         try (QueueSubscription queueSubscription = new QueueSubscription(sqs, sns, config.receiver.snsTopicArn)) {
             Receiver receiver = new Receiver(sqs, queueSubscription.getQueueUrl());
 
@@ -58,12 +62,18 @@ public class Main {
             List <Event> events = receiver.getEvents();
             for (Event event :events) {
                 if (locationService.isValidLocation(event.getLocationId())) {
-                    LOG.info("{}", event);
+                    if (!eventService.hasPreviouslyBeenSeen(event)) {
+                        eventService.addEvent(event);
+                        LOG.info("{}", event);
+                    } else{
+                        LOG.info("event already been seen {}", event.getEventId());
+                    }
                 } else {
-                    LOG.info("skipped event with invalid location ID {}", event.getLocationId());
+                   LOG.info("skipped event with invalid location ID {}", event.getLocationId());
                 }
             }
         }
+
 
         }
     }
