@@ -39,7 +39,7 @@ public class Location {
         this.id = id;
     }
     //private string tostring use moreobjects.toStringhelper this.getClass .add name "ID", id etc ...toString;
-    private String tostring(){
+    public String toString(){
         return MoreObjects.toStringHelper(this.getClass())
             .add("ID", id)
             .add("x", x)
